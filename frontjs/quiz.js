@@ -21,7 +21,7 @@ if(check == null){
 let text,final_s;
 
 const API_URL = "https://api.coze.com/open_api/v2/chat";
-const PSN_TOKEN = "pat_haBI1XCMgRmOiOyE8msUg64pduijELo4x9sPr3OBPrgTWG7gBuZOaTMpkmpHRSkm";
+const PSN_TOKEN = "pat_3uiuH6tsaaEHtkmlgmN0jZYIl9zRDUp4OE92JzFTwcITdKKJj7v5z68rjMXcHBEd";
 
 async function run() {
     document.getElementById('loading').innerHTML = `
