@@ -115,13 +115,6 @@ async function run() {
     function get() {
         console.log("final_s: ",final_s);
         renderQuiz(final_s);
-        document.getElementById('before-result').innerHTML += `
-                <div style="text-align: center;" id="container">
-                    <button id="good">Good</button>
-                    <button id="normal">Normal</button>
-                    <button id="bad">Bad</button>
-                </div>
-            `;
     }        
 
 
@@ -458,7 +451,8 @@ function scoreQuiz() {
                             * Điểm cần cải thiện 1: điểm cần cải thiện
                             * Điểm cần cải thiện 2: điểm cần cải thiện
                             * điểm cần cải thiện 3: điểm cần cải thiện
-                            * Lời khuyền: đưa ra lời khuyên` }],
+                            * Lời khuyền: đưa ra lời khuyên,
+                            *  xuống hàng thì thêm dấu '\\n'` }],
                         },
                     ],
                     generationConfig : {
@@ -491,6 +485,7 @@ function scoreQuiz() {
         const text = "This is a test.";
         
     } else {
+
         alert(`Your score is ${score.toFixed(2)} out of 10.`);
         postData(score,correctCount,totalQuestions,userQues,"",correctAndWrong);
     }
