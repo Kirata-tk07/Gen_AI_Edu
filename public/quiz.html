@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Generation</title>
+    <link rel="stylesheet" href="../css/style_quiz.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
+</head>
+
+<body>
+
+    <div class="scroll-button">
+        <a href="#home"></a>
+      </div>
+    
+    <nav>
+    <div class="navbar">
+        <div class="logo"><img src="../images/hs.png" width="167" height="89"></div>
+        <ul class="menu">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <div class="cancel-btn">
+            <i class="fas fa-times"></i>
+        </div>
+        </ul>
+        <div class="media-icons">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+    </div>
+    <div class="menu-btn">
+        <i class="fas fa-bars"></i>
+    </div>
+    </nav>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div> 
+        <h1>Chủ đề sang Quiz</h1>
+        <a href ="quiz.html" class ="button-link">Chủ Đề</a>
+        <a href ="File_Upload.html" class="button-link">PDF/Word</a>
+    </div>
+    
+    <textarea id="prompt" placeholder="Hãy nhập chủ đề mà bạn muốn"></textarea>
+    <div style="text-align: center;" id="container">
+        <div>
+            <label for="question-type">Questions Type:</label>
+            <select id="question-type">
+                <option value="Multiple Choice">Chọn một câu trả lời</option>
+                <option value="Multiple Response">Chọn nhiều câu trả lời</option>
+                <option value ="True or False"> Trắc nghiệm đúng sai</option>
+                <!--<option value="True or False">True or False</option> -->
+            </select>
+        </div>
+        <div>
+        <label for="num-questions"> Max Questions:</label>
+        <select id="num-questions">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="25">25</option>
+            <option value="30">30</option>
+            <option value="35">35</option>
+            <option value="40">40</option>
+            <option value="45">45</option>
+            <option value="50">50</option>
+        </select>
+        </div>
+        <div>
+            <div style="text-align: center;" class = "btn">
+                <button id="submit">Submit</button>
+                <button id="get">Get</button>
+                <button id="calculate-score">Calculate Score</button>
+                <button id="history">History</button>
+                <div id="score-container">Your score: <span id="score">0</span>/10</div>    
+            </div>
+        </div>
+        <div class="loader" id="loading">
+            Ready!
+        </div>
+        
+    </div>
+    
+
+    <script type="importmap">
+    {   
+      "imports": {
+        "@google/generative-ai": "https://esm.run/@google/generative-ai"
+      }
+    }
+  </script>
+
+    <!-- Script module để nhập và khởi tạo mô hình GenerativeAI -->
+    <div id="quiz-container"></div>
+    <script type="module" src="../frontjs/quiz.js"></script>
+
+    <div class="timer-container" id="timer-container">
+        <div class="session-buttons">
+            <button class="session-button active" id="pomodoro-button" onclick="setPomodoro()">Pomodoro</button>
+            <button class="session-button" id="short-break-button" onclick="setShortBreak()">Short Break</button>
+            <button class="session-button" id="long-break-button" onclick="setLongBreak()">Long Break</button>
+        </div>  
+        <div class="timer" id="timer">25:00</div>
+        <button class="timer-button" id="start-button" onclick="startTimer()">START</button>
+    </div>
+    <button class="show-timer-button" onclick="toggleTimer()">Hiển thị đồng hồ</button>
+
+
+    <script src ="../frontjs/pomodoro.js"></script>
+
+    <div id ="before-result"></div>
+
+    <div id="result"></div>
+    <div id="quiz-container2"></div>
+    
+    
+</body>
+
+</html>
