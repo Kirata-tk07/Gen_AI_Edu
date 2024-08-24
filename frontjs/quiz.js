@@ -18,110 +18,99 @@ if(check == null){
 
 
 
-const genAI = new GoogleGenerativeAI(API_KEY);
-
-let model;
-(async () => {
-    model = await genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-})();
-
 let text,final_s;
 
-var num_prompt = 0;
-var prompt_0 = '';
-var text_0 = '';
+const API_URL = "https://api.coze.com/open_api/v2/chat";
+const PSN_TOKEN = "pat_haBI1XCMgRmOiOyE8msUg64pduijELo4x9sPr3OBPrgTWG7gBuZOaTMpkmpHRSkm";
 
-    async function run() {
-        document.getElementById('loading').innerHTML = `
-        <span>Loading...</span>
-        <span class="dot">.</span>
-        <span class="dot">.</span>
-        <span class="dot">.</span>
-        `;
+async function run() {
+    document.getElementById('loading').innerHTML = `
+    <span>Loading...</span>
+    <span class="dot">.</span>
+    <span class="dot">.</span>
+    <span class="dot">.</span>
+    `;
+
+    const numQuestions = document.getElementById('num-questions').value;
+    const type = document.getElementById('question-type').value;
+    let prompt;
+    userQues = document.getElementById('prompt').value;
+    let pre_prompt = [
     
-        const numQuestions = document.getElementById('num-questions').value;
-        const type = document.getElementById('question-type').value;
-        const promptContent = document.getElementById('prompt').value;
-        userQues = promptContent;
-    
-        const pre_prompts = [
-            `Tạo ra chính xác ${numQuestions} câu hỏi quiz với 4 đáp án khả thi mỗi câu, có dựa theo nội dung hoặc chủ đề là: ${promptContent}. Trong 4 đáp án của từng câu, chỉ có 1 đáp án true và 3 đáp án false. Đáp án true là ngẫu nhiên trong 4 đáp án 1, 2, 3, 4. Cấu trúc nó sẽ nên như này (và chỉ promt ra nội dung câu hỏi dựa theo cấu trúc, ko nên thêm bất cứ thông tin nào khác, không thêm lưu ý, không thêm tiêu đề):
-            [
-                {subject: "Môn học",class: "Lớp ..."},
-                { question: "Câu hỏi 1", answers: [ { text: "Đáp án 1", correct: true }, { text: "Đáp án 2", correct: false }, { text: "Đáp án 3", correct: false }, { text: "Đáp án 4", correct: false } ] },
-                { question: "Câu hỏi 2", answers: [ { text: "Đáp án 1", correct: false }, { text: "Đáp án 2", correct: true }, { text: "Đáp án 3", correct: false }, { text: "Đáp án 4", correct: false } ] },
-                { question: "Câu hỏi 3", answers: [ { text: "Đáp án 1", correct: false }, { text: "Đáp án 2", correct: false }, { text: "Đáp án 3", correct: true }, { text: "Đáp án 4", correct: false } ] },
-            ];`,
-    
-            `Tạo ra chính xác ${numQuestions} câu hỏi quiz với 4 đáp án khả thi mỗi câu, có dựa theo nội dung hoặc chủ đề là: ${promptContent}. Trong 4 đáp án của từng câu, có ít nhất 1 đáp án sai và ít nhất 2 đáp án đúng. Đáp án đúng sẽ được sắp xếp ngẫu nhiên trong 4 đáp án. Cấu trúc câu hỏi như sau (chỉ in ra nội dung câu hỏi theo cấu trúc này, không thêm bất cứ thông tin nào khác, không thêm lưu ý, không thêm tiêu đề):
-            [
-                {subject: "Môn học",class: "Lớp ..."},
-                { question: "Câu hỏi 1", answers: [ { text: "Đáp án 1", correct: true }, { text: "Đáp án 2", correct: true }, { text: "Đáp án 3", correct: false }, { text: "Đáp án 4", correct: false } ] },
-                { question: "Câu hỏi 2", answers: [ { text: "Đáp án 1", correct: true }, { text: "Đáp án 2", correct: false }, { text: "Đáp án 3", correct: true }, { text: "Đáp án 4", correct: false } ] },
-                { question: "Câu hỏi 3", answers: [ { text: "Đáp án 1", correct: false }, { text: "Đáp án 2", correct: true }, { text: "Đáp án 3", correct: true }, { text: "Đáp án 4", correct: false } ] }
-            ];`,
-    
-            `Tạo ra chính xác ${numQuestions} câu hỏi quiz với 4 đáp án khả thi mỗi câu, dựa trên nội dung hoặc chủ đề là: ${promptContent}. Mỗi câu có ít nhất 1 đáp án sai và ít nhất 2 đáp án đúng, được phân bố ngẫu nhiên trong 4 đáp án. Cấu trúc dữ liệu như sau (chỉ xuất nội dung câu hỏi theo cấu trúc này, không thêm thông tin khác):
-            [
-                {subject: "Môn học",class: "Lớp .."},
-                { question: "Câu hỏi 1", answers: [ { text: "Đáp án 1", correct: true }, { text: "Đáp án 2", correct: false }, { text: "Đáp án 3", correct: true }, { text: "Đáp án 4", correct: false } ] },
-                { question: "Câu hỏi 2", answers: [ { text: "Đáp án 1", correct: true }, { text: "Đáp án 2", correct: true }, { text: "Đáp án 3", correct: false }, { text: "Đáp án 4", correct: false } ] },
-                { question: "Câu hỏi 3", answers: [ { text: "Đáp án 1", correct: false }, { text: "Đáp án 2", correct: true }, { text: "Đáp án 3", correct: true }, { text: "Đáp án 4", correct: false } ] }
-            ];`
-        ];
-    
-        const questionTypes = ["Multiple Choice", "Multiple Response", "True or False"];
-        const prompt = pre_prompts[questionTypes.indexOf(type)];
-    
-        if (num_prompt === 0) {
-            const result = await model.generateContentStream(prompt);
-            const response = await result.response;
-            let text = await response.text();
-    
-            let temp = cleanJsonString(text);
-            final_s = temp;
-    
-            if (numQuestions - final_s.length > 0) {
-                let config_prompt = pre_prompts[questionTypes.indexOf(type)];
-                config_prompt = config_prompt.replace(`${numQuestions}`, `${numQuestions - final_s.length}`);
-                const rs = await model.generateContentStream(config_prompt);
-                const rp = await rs.response;
-                text = await rp.text();
-                temp = cleanJsonString(text);
-                final_s = final_s.concat(temp);
-            }
-    
-            num_prompt = 1;
-            prompt_0 = prompt;
-            text_0 = final_s;
-        } else {
-            const chat = model.startChat({
-                "contents": [
-                    {
-                        role: "user",
-                        parts: [{ "text": prompt_0 }],
-                    },
-                    {
-                        role: "model",
-                        parts: [{ "text":text_0 }],
-                    },
-                ]
-            });
-    
-            const msg = document.getElementById('prompt').value;
-            const result = await chat.sendMessage(msg);
-            const response = await result.response;
-            const text = await response.text();
-            console.log(num_prompt);
-            console.log(text_0);
-            text_0 = JSON.parse(text);
+        `Tạo ra chính xác ${numQuestions} câu hỏi quiz với 4 đáp án khả thi mỗi câu và sắp xếp thự tự các "answer" ngẫu nhiên, có dựa theo nội dung hoặc chủ đề là: ${document.getElementById('prompt').value}. Trong 4 đáp án của từng câu, chỉ có 1 đáp án true và 3 đáp án false. Đáp án true là ngẫu nhiên trong 4 đáp án 1, 2, 3, 4. Cấu trúc nó sẽ nên như này (và chỉ promt ra nội dung câu hỏi dựa theo cấu trúc, ko nên thêm bất cứ thông tin nào khác, không thêm lưu ý, không thêm tiêu đề) ghi rõ là "Lớp mấy" ví dụ (Lớp 11):
+        [
+            {"subject":"môn học",class : "Lớp bao nhiêu"},
+            { "question": "", "answers": [ { "text": "Đáp án 1", "correct": true or false }, { "text": "Đáp án 2", "correct": true or false }, { "text": "Đáp án 3", "correct": true or false }, { "text": "Đáp án 4", "correct": true or false } ] },
+            { "question": "", "answers": [ { "text": "Đáp án 1", "correct": true or false }, { "text": "Đáp án 2", "correct": true or false }, { "text": "Đáp án 3", "correct": true or false }, { "text": "Đáp án 4", "correct": true or false } ] },
+            { "question": "", "answers": [ { "text": "Đáp án 1", "correct": true or false }, { "text": "Đáp án 2", "correct": true or false }, { "text": "Đáp án 3", "correct": true or false }, { "text": "Đáp án 4", "correct": true or false } ] },
+        ]; `,
+
+        `Tạo ra chính xác ${numQuestions} câu hỏi quiz với 4 đáp án khả thi mỗi câuvà sắp xếp thự tự các "answer" ngẫu nhiên, dựa theo nội dung hoặc chủ đề là: ${document.getElementById('prompt').value}. Trong 4 đáp án của từng câu, có ít nhất 1 đáp án sai và ít nhất 2 đáp án đúng. Đáp án đúng sẽ được sắp xếp ngẫu nhiên trong 4 đáp án. Cấu trúc câu hỏi như sau (chỉ in ra nội dung câu hỏi theo cấu trúc này, không thêm bất cứ thông tin nào khác, không thêm lưu ý, không thêm tiêu đề) ghi rõ là "Lớp mấy" ví dụ (Lớp 11):
+        [
+            {"subject":"môn học",class : "Lớp bao nhiêu"},
+            { "question": "Câu hỏi 1", "answers": [ { "text": "Đáp án 1", "correct": true or false }, { "text": "Đáp án 2", "correct": true or false }, { "text": "Đáp án 3", "correct": true or false }, { "text": "Đáp án 4", "correct": true or false } ] },
+            { "question": "Câu hỏi 2", "answers": [ { "text": "Đáp án 1", "correct": true or false }, { "text": "Đáp án 2", "correct": true or false }, { "text": "Đáp án 3", "correct": true or false }, { "text": "Đáp án 4", "correct": true or false } ] },
+            { "question": "Câu hỏi 3", "answers": [ { "text": "Đáp án 1", "correct": true or false }, { "text": "Đáp án 2", "correct": true or false }, { "text": "Đáp án 3", "correct": true or false }, { "text": "Đáp án 4", "correct": true or false } ] }
+        ];`,
+
+        `Tạo ra chính xác ${numQuestions} câu hỏi quiz với 4 đáp án khả thi mỗi câu và sắp xếp thự tự các "answer" ngẫu nhiên, dựa trên nội dung hoặc chủ đề là: ${document.getElementById('prompt').value}. Mỗi câu có ít nhất 1 đáp án sai và ít nhất 2 đáp án đúng, được phân bố ngẫu nhiên trong 4 đáp án. Cấu trúc dữ liệu như sau (chỉ xuất nội dung câu hỏi theo cấu trúc này, không thêm thông tin khác) ghi rõ là "Lớp mấy" ví dụ (Lớp 11):
+        [
+            {"subject":"môn học",class : "Lớp bao nhiêu"},
+            { "question": "Câu hỏi 1", "answers": [ { "text": "Đáp án 1", "correct": true or false }, { "text": "Đáp án 2", "correct": true or false }, { "text": "Đáp án 3", "correct": true or false }, { "text": "Đáp án 4", "correct": true or false } ] },
+            { "question": "Câu hỏi 2", "answers": [ { "text": "Đáp án 1", "correct": true or false }, { "text": "Đáp án 2", "correct": true or false }, { "text": "Đáp án 3", "correct": true or false }, { "text": "Đáp án 4", "correct": true or false } ] },
+            { "question": "Câu hỏi 3", "answers": [ { "text": "Đáp án 1", "correct": true or false }, { "text": "Đáp án 2", "correct": true or false }, { "text": "Đáp án 3", "correct": true or false }, { "text": "Đáp án 4", "correct": true or false } ] }
+        ];`
+    ]
+
+    let t = ["Multiple Choice","Multiple Response","True or False"];
+    prompt = pre_prompt[t.indexOf(type)];
+
+    const data = {
+        conservation_id: "demo-0",
+        bot_id: "7393345978566885384",
+        user: "demo-user",
+        query: prompt,
+        stream: false
+    };
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${PSN_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error();
         }
-        document.getElementById('loading').innerHTML = "Done!";
-        console.log(prompt);
-    
-        // Debugging statement to check the content of final_s
-        // console.log("final_s:", final_s);
+
+        const responseData = await response.json();
+        
+        if (responseData.messages && responseData.messages.length > 0) {
+            const aiAnswer = responseData.messages.find(message => message.type === "answer");
+            if (aiAnswer) {
+                text = aiAnswer.content;
+                final_s = cleanJsonString(text)
+                console.log(final_s);
+                console.log(typeof text);
+                // console.log(aiAnswer.content);
+                // let temp = cleanJsonString(text);
+                // final_s = temp;
+
+                document.getElementById('loading').innerHTML = "Done!";
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
     }
+    console.log(prompt);
+    console.log(final_s);
+    console.log(typeof final_s); // Kiểm tra kiểu dữ liệu
+    // console.log(Array.isArray(final_s)); // Kiểm tra xem nó có phải là mảng không   
+}
 
     function get() {
         console.log("final_s: ",final_s);
@@ -136,7 +125,7 @@ var text_0 = '';
     }        
 
 
-    async function postData(score,correctQuestion,totalQuestions,userQues,content){
+    async function postData(score,correctQuestion,totalQuestions,userQues,content,trueFalse){
         const url = "http://localhost:5500/quiz.html";
         const res = await fetch(url,{
             method: 'POST',
@@ -156,7 +145,8 @@ var text_0 = '';
                     User_Correct: correctQuestion,
                     User_Total: totalQuestions,
                     User_Questions: userQues,
-                    AI_res: content
+                    AI_res: content,
+                    True_False: trueFalse
                 }
             })
         })
@@ -382,6 +372,7 @@ function cleanJsonString(json) {
 }
 
 function scoreQuiz() {
+    let correctAndWrong = [];
     if (!final_s || final_s.length === 0) {
         alert("Please generate the quiz first!");
         return;
@@ -400,7 +391,7 @@ function scoreQuiz() {
         answerInputs.forEach((input, answerIndex) => {
             // if(answerIndex == 0)return;
             if (input.checked) {
-                selectedAnswers.push(answerIndex);
+                selectedAnswers.push(answerIndex);  
             }
         });
 
@@ -415,8 +406,10 @@ function scoreQuiz() {
 
         if (correct) {
             correctCount++;
+            correctAndWrong.push(`{"true": ${selectedAnswers[0]+1}}`)
         } else {
             incorrectQuestions.push(final_s[quizIndex]);
+            correctAndWrong.push(`{"false": ${selectedAnswers[0]+1}}`)
         }
     });
 
@@ -457,7 +450,15 @@ function scoreQuiz() {
                         role: "model",
                         parts: [{ text: `Tôi sẽ nhận xét với tư cách là một giáo viên bộ môn và chỉ nhận xét đúng điểm cần cải thiện không nhận xét gì khác.
                             Tôi sẽ:
-                            Nêu ra những điểm học sinh cần cải thiện.` }],
+                            1. Nêu ra những điểm học sinh cần cải thiện.
+                            2. Đưa ra lời khuyên dành cho học sinh
+                            3. theo cú pháp sau đây:
+                            * Nhận xét bài làm:
+                            gì đó đó
+                            * Điểm cần cải thiện 1: điểm cần cải thiện
+                            * Điểm cần cải thiện 2: điểm cần cải thiện
+                            * điểm cần cải thiện 3: điểm cần cải thiện
+                            * Lời khuyền: đưa ra lời khuyên` }],
                         },
                     ],
                     generationConfig : {
@@ -472,9 +473,10 @@ function scoreQuiz() {
             const result = await chat.sendMessage(msg);
             const response = await result.response;
             content = await response.text(); 
+            // content = content.replaceAll('*','');
             console.log(content);
 
-            postData(score,correctCount,totalQuestions,userQues,content);
+            postData(score,correctCount,totalQuestions,userQues,content,correctAndWrong);
             
             
             document.getElementById('loading').innerHTML = 'Done';
@@ -490,7 +492,7 @@ function scoreQuiz() {
         
     } else {
         alert(`Your score is ${score.toFixed(2)} out of 10.`);
-        postData(score,correctCount,totalQuestions,userQues,"");
+        postData(score,correctCount,totalQuestions,userQues,"",correctAndWrong);
     }
     
 }
